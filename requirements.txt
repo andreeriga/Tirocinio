@@ -3,3 +3,5 @@ jupytext
 notebook
 numpy
 scikit-learn
+matplotlib
+pandas
