@@ -27,11 +27,11 @@ from sklearn.svm import OneClassSVM
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 # -
 
-nodes = pd.read_csv('data/nodes.csv', index_col=0)
+nodes = pd.read_csv('data/nodes(0).csv', index_col=0)
 
 nodes
 
-node_embeddings = pd.read_csv('data/nodes_embedding.txt',
+node_embeddings = pd.read_csv('data/nodes_embedding_LINE(0).txt',
                               header=None,
                               sep='\t',
                               index_col=0,
@@ -47,7 +47,7 @@ for i in nodes.index:
 
 nodes['type'].value_counts()
 
-edges = pd.read_csv('data/edges.csv')
+edges = pd.read_csv('data/edges(0).csv')
 edges_freq = edges['type'].value_counts()
 edges_freq_reduced = edges_freq[edges_freq > 100]
 edges_freq_reduced
@@ -56,7 +56,7 @@ edges.head()
 
 
 class OCSVM(BaseEstimator):
-    def __init__(self, nu=1, gamma='scale', verbose=False):
+    def __init__(self, nu=.5, gamma='scale', verbose=False):
         self.nu = nu
         self.gamma = gamma
         self.verbose = verbose
@@ -148,7 +148,7 @@ def run_experiment(predicate, sample=None, serialize_dir=None):
         y_test = y[test_idx]
         gamma_values = ['scale', 'auto'] + list(np.logspace(-10, 2, 11))
         gs = GridSearchCV(ocsvm,
-                          param_grid={'nu': np.logspace(-8, 0, 9),
+                          param_grid={'nu': np.array([x for x in np.logspace(-8, 0, 9) if x != 1]),
                                      'gamma': gamma_values},
                           cv=internal_holdout,
                           n_jobs=-1,
@@ -198,7 +198,7 @@ def run_experiment(predicate, sample=None, serialize_dir=None):
 model = {}
 for predicate in edges_freq_reduced.index:
     sample = 500 if edges_freq_reduced[predicate] > 500 else None
-    m = run_experiment(predicate, sample=sample, serialize_dir='models')
+    m = run_experiment(predicate, sample=sample, serialize_dir=None)
     print(20*'-')
     model[predicate] = m
 
